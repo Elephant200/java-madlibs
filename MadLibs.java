@@ -18,7 +18,7 @@ public class MadLibs
         for (int i = 0; i < storyCount; i++) {
             question += "\n[" + (i+1) + "] Story " + (i+1);
         }
-        question += "\n[" + (storyCount + 1) + "] Make your own story\n[0] Quit Program\n";
+        question += "\n[" + (storyCount + 1) + "] Random Story\n[" + (storyCount + 2) + "] Make your own story\n[0] Quit Program\n";
         System.out.println(question);
         int answer = Integer.parseInt(input.nextLine());
         while (answer != 0) {
@@ -27,6 +27,11 @@ public class MadLibs
                 game.play();
             }
             if (answer == storyCount + 1) {
+                int gameNum = (int)(Math.random() * (storyCount - 1)) + 1;
+                MadLib game = new MadLib(partsOfSpeech[gameNum], stories[gameNum]);
+                game.play();
+            }
+            if (answer == storyCount + 2) {
                 System.out.println("Thank you for choosing to contribute to the MadLibs game.\n");
                 System.out.println("Please enter your MadLibs in the format that follows:");
                 System.out.println("Story content __Part of Speech__ more story content __Part of Speech__ more content.");
