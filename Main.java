@@ -3,7 +3,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 
-public class MadLibs
+public class Main
 {
     public static String[][] partsOfSpeech;
     public static String[][] stories;
