@@ -11,71 +11,65 @@ public class MadLibs
     
     public static void main(String[] args)
     {
-        load();
+        // Load stories and initialize scanner
+        loadStories();
         Scanner input = new Scanner(System.in);
         
+        // Initialize prompt
         String question = "Please choose an option below.";
         for (int i = 0; i < storyCount; i++) {
             question += "\n[" + (i+1) + "] Story " + (i+1);
         }
         question += "\n[" + (storyCount + 1) + "] Random Story\n[" + (storyCount + 2) + "] Make your own story\n[0] Quit Program\n";
-        System.out.println(question);
-        int answer = Integer.parseInt(input.nextLine());
-        while (answer != 0) {
-            if (answer > 0 && answer < storyCount + 1) {
+        
+        int answer = 0;
+        while (true) {
+            System.out.println(question);
+            try {
+                answer = Integer.parseInt(input.nextLine().trim()); // get user input
+                clear();
+            }
+            catch (Exception e){
+                System.out.println("Invalid input.");
+                continue;
+            }
+
+            if (answer == 0) {
+                break;
+            } else if (answer >= 1 && answer <= storyCount) {
                 MadLib game = new MadLib(partsOfSpeech[answer - 1], stories[answer - 1]);
                 game.play();
-            }
-            if (answer == storyCount + 1) {
-                int gameNum = (int)(Math.random() * (storyCount - 1)) + 1;
+            } else if (answer == storyCount + 1) {
+                int gameNum = (int) (Math.random() * storyCount);
                 MadLib game = new MadLib(partsOfSpeech[gameNum], stories[gameNum]);
                 game.play();
-            }
-            if (answer == storyCount + 2) {
-                System.out.println("Thank you for choosing to contribute to the MadLibs game.\n");
-                System.out.println("Please enter your MadLibs in the format that follows:");
-                System.out.println("Story content __Part of Speech__ more story content __Part of Speech__ more content.");
-                System.out.println("See story1.txt for a full example.");
-                System.out.println("When you finish writing the story, write __END__ in its own line to signal this.");
-                
-                // Get story from the user
-                String newStory = "";
-                while (true) {
-                    String line = input.nextLine();
-                    if (line.contains("__END__")) {
-                        break;
-                    }
-                    newStory += line;
-                }
-                
-                // Write story 
-                dump("story" + (storyCount + 1) + ".txt", newStory);
-                updateCount();
-                
+            } else if (answer == storyCount + 2) {
+                addNewStory(input);
                 System.out.println("Please rerun the program to see your new story!");
-                System.exit(0);
+                break;
+            } else {
+                System.out.println("Unrecognized input.");
             }
+            System.out.println("\nPress enter to continue...");
             input.nextLine();
-            clearScreen();
-            System.out.println(question);
-            answer = Integer.parseInt(input.nextLine());
+            clear();
         }
         input.close();
     }
     
-    public static void clearScreen() { 
+    public static void clear() { 
         System.out.print("\033[H\033[2J"); 
         System.out.flush(); 
     }
     
-    public static void load() {
+    public static void loadStories() {
         try {
             Scanner in = new Scanner(new FileReader("stories.txt"));
             storyCount = Integer.parseInt(in.nextLine());
+            in.close();
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("Fatal: could not read stories.txt");
             e.printStackTrace();
-            System.out.println("Fatal: could not reaad stories.txt");
             System.exit(1);
         }
         
@@ -83,7 +77,6 @@ public class MadLibs
         stories = new String[storyCount][];
         
         for (int i = 1; i <= storyCount; i++) {
-            System.out.println(i);
             String story = "";
             String fileName = "story" + i + ".txt";
             try {
@@ -93,11 +86,33 @@ public class MadLibs
                 }
                 partsOfSpeech[i - 1] = StoryParser.getPartsOfSpeech(story);
                 stories[i - 1] = StoryParser.getStory(story);
-                System.out.println("Successfully loaded file.");
+                in.close();
             } catch (Exception e) {
                 System.out.println("File \"" + fileName + "\" not found.");
             }
         }
+    }
+
+    public static void addNewStory(Scanner input) {
+        System.out.println("Thank you for choosing to contribute to the MadLibs game.\n");
+        System.out.println("Please enter your MadLibs in the format that follows:");
+        System.out.println("Story content __Part of Speech__ more story content __Part of Speech__ more content.");
+        System.out.println("See story1.txt for a full example.");
+        System.out.println("When you finish writing the story, write __END__ in its own line to signal this.");
+        
+        // Get story from the user
+        String newStory = "";
+        while (true) {
+            String line = input.nextLine();
+            if (line.contains("__END__")) {
+                break;
+            }
+            newStory += line;
+        }
+        
+        // Write story 
+        dump("story" + (storyCount + 1) + ".txt", newStory);
+        updateCount();
     }
     
     public static void dump(String file, String text) {
